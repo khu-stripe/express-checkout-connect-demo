@@ -4,7 +4,7 @@
         .ew-fab {
             position: fixed;
             bottom: 20px;
-            right: 20px;
+            left: 20px;
             width: 44px;
             height: 44px;
             border-radius: 50%;
@@ -17,7 +17,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            z-index: 9999;
+            z-index: 100;
             transition: transform 0.2s, box-shadow 0.2s;
         }
         .ew-fab:hover {
@@ -43,13 +43,13 @@
         .ew-panel {
             position: fixed;
             bottom: 76px;
-            right: 20px;
+            left: 20px;
             width: 380px;
             max-height: 320px;
             background: white;
             border-radius: 12px;
             box-shadow: 0 8px 32px rgba(0,0,0,0.15);
-            z-index: 9998;
+            z-index: 99;
             display: none;
             flex-direction: column;
             overflow: hidden;
@@ -112,7 +112,7 @@
         @media (max-width: 480px) {
             .ew-panel {
                 width: calc(100vw - 32px);
-                right: 16px;
+                left: 16px;
                 bottom: 72px;
             }
         }
