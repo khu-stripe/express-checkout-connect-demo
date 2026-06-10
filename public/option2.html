@@ -66,6 +66,35 @@
             font-size: 13px;
             color: #1a73e8;
         }
+        details {
+            margin-top: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        summary {
+            padding: 14px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #32325d;
+            cursor: pointer;
+            user-select: none;
+        }
+        summary:hover { background: #f9fafb; }
+        pre {
+            margin: 0;
+            padding: 16px 20px;
+            background: #1e1e2e;
+            color: #cdd6f4;
+            font-size: 12px;
+            line-height: 1.5;
+            overflow-x: auto;
+        }
+        pre .comment { color: #6c7086; }
+        pre .keyword { color: #cba6f7; }
+        pre .string { color: #a6e3a1; }
+        pre .property { color: #89b4fa; }
     </style>
 </head>
 <body>
@@ -95,6 +124,97 @@
         5. Backend creates a separate Transfer to connected account<br>
         6. Frontend shows result
     </div>
+
+    <details>
+        <summary>Frontend Code (JavaScript)</summary>
+        <pre><span class="keyword">const</span> AMOUNT = <span class="string">2500</span>;
+
+<span class="keyword">async function</span> <span class="property">initialize</span>() {
+  <span class="keyword">const</span> { publishableKey, connectedAccountId } =
+    <span class="keyword">await</span> fetch(<span class="string">"/api/config"</span>).then(r =&gt; r.json());
+  <span class="keyword">const</span> stripe = Stripe(publishableKey);
+
+  <span class="comment">// No PaymentIntent created upfront — deferred mode</span>
+  <span class="keyword">const</span> elements = stripe.elements({
+    <span class="property">mode</span>: <span class="string">"payment"</span>,
+    <span class="property">amount</span>: AMOUNT,
+    <span class="property">currency</span>: <span class="string">"usd"</span>,
+    <span class="property">onBehalfOf</span>: connectedAccountId,
+  });
+
+  <span class="keyword">const</span> ece = elements.create(<span class="string">"expressCheckout"</span>, {
+    <span class="property">paymentMethods</span>: { <span class="property">applePay</span>: <span class="string">"always"</span>, <span class="property">googlePay</span>: <span class="string">"always"</span> },
+  });
+  ece.mount(<span class="string">"#express-checkout-element"</span>);
+
+  ece.on(<span class="string">"confirm"</span>, <span class="keyword">async</span> () =&gt; {
+    <span class="comment">// Step 1: Create ConfirmationToken client-side</span>
+    <span class="keyword">const</span> { confirmationToken } =
+      <span class="keyword">await</span> stripe.createConfirmationToken({ elements });
+
+    <span class="comment">// Step 2: Send token to backend for server-side confirmation</span>
+    <span class="keyword">const</span> result = <span class="keyword">await</span> fetch(<span class="string">"/api/confirm-payment"</span>, {
+      <span class="property">method</span>: <span class="string">"POST"</span>,
+      <span class="property">headers</span>: { <span class="string">"Content-Type"</span>: <span class="string">"application/json"</span> },
+      <span class="property">body</span>: JSON.stringify({
+        <span class="property">confirmationTokenId</span>: confirmationToken.id,
+        <span class="property">amount</span>: AMOUNT,
+        <span class="property">currency</span>: <span class="string">"usd"</span>,
+      }),
+    }).then(r =&gt; r.json());
+
+    <span class="comment">// Handle 3DS if needed</span>
+    <span class="keyword">if</span> (result.status === <span class="string">"requires_action"</span>) {
+      <span class="keyword">await</span> stripe.handleNextAction({
+        <span class="property">clientSecret</span>: result.clientSecret,
+      });
+    }
+  });
+}</pre>
+    </details>
+
+    <details>
+        <summary>Backend Code (Node.js / Express)</summary>
+        <pre><span class="keyword">const</span> stripe = require(<span class="string">"stripe"</span>)(process.env.STRIPE_SECRET_KEY);
+
+<span class="comment">// POST /api/confirm-payment</span>
+app.post(<span class="string">"/api/confirm-payment"</span>, <span class="keyword">async</span> (req, res) =&gt; {
+  <span class="keyword">const</span> { confirmationTokenId, amount, currency } = req.body;
+
+  <span class="comment">// Create and confirm PaymentIntent in one API call</span>
+  <span class="keyword">const</span> paymentIntent = <span class="keyword">await</span> stripe.paymentIntents.create({
+    amount,
+    currency,
+    <span class="property">on_behalf_of</span>: process.env.STRIPE_CONNECTED_ACCOUNT_ID,
+    <span class="property">confirmation_token</span>: confirmationTokenId,
+    <span class="property">confirm</span>: <span class="keyword">true</span>,
+    <span class="property">automatic_payment_methods</span>: { <span class="property">enabled</span>: <span class="keyword">true</span> },
+    <span class="property">return_url</span>: <span class="string">"https://your-site.com/option2.html"</span>,
+  });
+
+  <span class="keyword">if</span> (paymentIntent.status === <span class="string">"requires_action"</span>) {
+    <span class="keyword">return</span> res.json({
+      <span class="property">status</span>: <span class="string">"requires_action"</span>,
+      <span class="property">clientSecret</span>: paymentIntent.client_secret,
+    });
+  }
+
+  <span class="keyword">if</span> (paymentIntent.status === <span class="string">"succeeded"</span>) {
+    <span class="comment">// Create transfer immediately after confirmation</span>
+    <span class="keyword">const</span> transfer = <span class="keyword">await</span> stripe.transfers.create({
+      amount,
+      currency,
+      <span class="property">destination</span>: process.env.STRIPE_CONNECTED_ACCOUNT_ID,
+      <span class="property">source_transaction</span>: paymentIntent.latest_charge,
+    });
+
+    res.json({
+      <span class="property">status</span>: <span class="string">"succeeded"</span>,
+      <span class="property">transferId</span>: transfer.id,
+    });
+  }
+});</pre>
+    </details>
 
     <script src="https://js.stripe.com/v3/"></script>
     <script src="app-option2.js"></script>
