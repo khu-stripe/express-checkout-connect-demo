@@ -33,7 +33,7 @@ async function initialize() {
             googlePay: "buy",
         },
         layout: {
-            overflow: false,
+            overflow: "never",
         },
     });
     expressCheckoutElement.mount("#express-checkout-element");
