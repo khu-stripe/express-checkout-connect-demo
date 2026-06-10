@@ -4,21 +4,6 @@ let stripe;
 let elements;
 let connectedAccountId;
 
-function logEvent(name, data) {
-    const log = document.getElementById("event-log");
-    const entry = document.createElement("div");
-    entry.className = "event-entry";
-    const time = new Date().toLocaleTimeString("en-US", { hour12: false, hour: "2-digit", minute: "2-digit", second: "2-digit", fractionalSecondDigits: 3 });
-    let html = `<span class="event-time">${time}</span> <span class="event-name">${name}</span>`;
-    if (data) {
-        const json = typeof data === "string" ? data : JSON.stringify(data, null, 2);
-        html += `<pre class="event-data">${json}</pre>`;
-    }
-    entry.innerHTML = html;
-    log.appendChild(entry);
-    log.scrollTop = log.scrollHeight;
-}
-
 async function initialize() {
     logEvent("init", "Fetching config...");
 
