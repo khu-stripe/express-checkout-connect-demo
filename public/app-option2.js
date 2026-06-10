@@ -32,6 +32,9 @@ async function initialize() {
             applePay: "buy",
             googlePay: "buy",
         },
+        layout: {
+            overflow: false,
+        },
     });
     expressCheckoutElement.mount("#express-checkout-element");
     logEvent("element.mounted", "expressCheckout element mounted");
