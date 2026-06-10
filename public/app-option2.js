@@ -42,6 +42,7 @@ async function initialize() {
 
     expressCheckoutElement.on("click", (event) => {
         logEvent("element.click", { resolvedPaymentMethods: event.expressPaymentType });
+        event.resolve();
     });
 
     expressCheckoutElement.on("cancel", () => {
