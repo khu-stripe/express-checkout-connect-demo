@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Option 2: 2-Step Confirmation</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 480px;
+            margin: 60px auto;
+            padding: 0 20px;
+            background: #f6f9fc;
+        }
+        h1 { font-size: 24px; color: #32325d; }
+        .nav {
+            margin-bottom: 24px;
+            font-size: 14px;
+        }
+        .nav a {
+            color: #1a73e8;
+            text-decoration: none;
+            margin-right: 16px;
+        }
+        .nav a:hover { text-decoration: underline; }
+        .nav .active {
+            font-weight: 600;
+            color: #32325d;
+            pointer-events: none;
+        }
+        .badge {
+            display: inline-block;
+            background: #635bff;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+        .product {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 24px;
+        }
+        .product-name { font-size: 18px; font-weight: 600; color: #32325d; }
+        .product-price { font-size: 24px; color: #525f7f; margin-top: 8px; }
+        #express-checkout-element { margin-top: 24px; }
+        #message {
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            display: none;
+        }
+        #message.success { display: block; background: #d4edda; color: #155724; }
+        #message.error { display: block; background: #f8d7da; color: #721c24; }
+        .info {
+            margin-top: 24px;
+            padding: 16px;
+            background: #e8f4fd;
+            border-radius: 4px;
+            font-size: 13px;
+            color: #1a73e8;
+        }
+    </style>
+</head>
+<body>
+    <h1>Express Checkout Demo</h1>
+    <p style="color:#525f7f; font-size:14px;">Separate Charges & Transfers with <code>on_behalf_of</code></p>
+
+    <div class="nav">
+        <a href="index.html">&larr; Back</a>
+        <a href="option1.html">Option 1: Client-side Confirm</a>
+        <a href="option2.html" class="active">Option 2: 2-Step Confirmation</a><span class="badge">Server-side</span>
+    </div>
+
+    <div class="product">
+        <div class="product-name">Sample Product</div>
+        <div class="product-price">$25.00</div>
+        <div id="express-checkout-element"></div>
+    </div>
+
+    <div id="message"></div>
+
+    <div class="info">
+        <strong>Flow (2-Step Confirmation):</strong><br>
+        1. Frontend creates Express Checkout Element (no PaymentIntent yet)<br>
+        2. Customer interacts with Apple Pay / Google Pay<br>
+        3. Frontend calls <code>stripe.createConfirmationToken()</code><br>
+        4. Backend receives token, creates PaymentIntent with <code>confirm: true</code><br>
+        5. Backend creates a separate Transfer to connected account<br>
+        6. Frontend shows result
+    </div>
+
+    <script src="https://js.stripe.com/v3/"></script>
+    <script src="app-option2.js"></script>
+</body>
+</html>

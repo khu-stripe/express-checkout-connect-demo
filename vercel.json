@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    { "source": "/api/config", "destination": "/api/config" },
+    { "source": "/api/create-payment-intent", "destination": "/api/create-payment-intent" },
+    { "source": "/api/create-transfer", "destination": "/api/create-transfer" },
+    { "source": "/api/confirm-payment", "destination": "/api/confirm-payment" }
+  ]
+}

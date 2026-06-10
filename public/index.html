@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Express Checkout Demo - Choose Integration</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 600px;
+            margin: 80px auto;
+            padding: 0 20px;
+            background: #f6f9fc;
+        }
+        h1 {
+            font-size: 28px;
+            color: #32325d;
+            margin-bottom: 8px;
+        }
+        .subtitle {
+            color: #525f7f;
+            font-size: 15px;
+            margin-bottom: 40px;
+        }
+        .options {
+            display: grid;
+            gap: 20px;
+        }
+        .option-card {
+            background: white;
+            border-radius: 12px;
+            padding: 28px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            text-decoration: none;
+            color: inherit;
+            transition: box-shadow 0.2s, transform 0.2s;
+            border: 2px solid transparent;
+        }
+        .option-card:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+            transform: translateY(-2px);
+            border-color: #635bff;
+        }
+        .option-card h2 {
+            font-size: 18px;
+            color: #32325d;
+            margin: 0 0 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .option-card p {
+            font-size: 14px;
+            color: #525f7f;
+            margin: 0 0 16px 0;
+            line-height: 1.5;
+        }
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .badge-client {
+            background: #e8f4fd;
+            color: #1a73e8;
+        }
+        .badge-server {
+            background: #ede7f6;
+            color: #635bff;
+        }
+        .steps {
+            font-size: 12px;
+            color: #8898aa;
+            line-height: 1.6;
+            border-top: 1px solid #f0f0f0;
+            padding-top: 12px;
+        }
+        .arrow {
+            float: right;
+            font-size: 20px;
+            color: #635bff;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .option-card:hover .arrow {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <h1>Express Checkout Demo</h1>
+    <p class="subtitle">Separate Charges & Transfers with <code>on_behalf_of</code></p>
+
+    <div class="options">
+        <a href="option1.html" class="option-card">
+            <h2>
+                Option 1: Client-side Confirm
+                <span class="badge badge-client">Client-side</span>
+                <span class="arrow">&rarr;</span>
+            </h2>
+            <p>
+                The frontend creates a PaymentIntent upfront, collects payment via Express Checkout,
+                and confirms the payment client-side. After success, it triggers a separate Transfer.
+            </p>
+            <div class="steps">
+                1. Create PaymentIntent &rarr; 2. Customer pays &rarr; 3. <code>stripe.confirmPayment()</code> &rarr; 4. Create Transfer
+            </div>
+        </a>
+
+        <a href="option2.html" class="option-card">
+            <h2>
+                Option 2: 2-Step Confirmation
+                <span class="badge badge-server">Server-side</span>
+                <span class="arrow">&rarr;</span>
+            </h2>
+            <p>
+                The frontend collects payment details and creates a ConfirmationToken.
+                The backend creates and confirms the PaymentIntent in one call, then creates the Transfer.
+            </p>
+            <div class="steps">
+                1. Express Checkout &rarr; 2. <code>createConfirmationToken()</code> &rarr; 3. Backend confirms + transfers
+            </div>
+        </a>
+    </div>
+</body>
+</html>
